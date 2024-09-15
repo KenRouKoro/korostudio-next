@@ -1,15 +1,17 @@
 import { defineConfig } from 'vitepress'
+import replaceImagePlugin from './theme/src/plugin/replaceImagePlugin';
+import anchor from 'markdown-it-anchor'
 
 const fileAndStyles: Record<string, string> = {}
 
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
-  title: 'naive-ui-vitepress-demo',
-  description: 'naive-ui vitepress demo',
+  title: '计算机编程技巧与心得',
+  description: 'KoroStudio Blog Demo',
+  outdir: './dist',
   themeConfig: {
     // https://vitepress.dev/reference/default-theme-config
     nav: [{ text: 'Home', link: '/' }],
-
     sidebar: [
       {
         text: 'Examples',
@@ -43,5 +45,31 @@ export default defineConfig({
     if (style) {
       return code.replace(/<\/head>/, style + '</head>')
     }
-  }
+  },
+  sitemap: {
+    hostname: 'https://korostudio.com',
+    lastmodDateOnly: true
+  },
+  markdown:{
+    theme: { light: 'github-light', dark: 'github-dark' },
+    image:{
+      lazyLoading: true
+    },
+    math: true,
+    config: (md)=>{
+      md.use(replaceImagePlugin);
+    },
+    lineNumbers : true,
+    anchor:{
+      permalink:anchor.permalink.ariaHidden({
+        placement: 'before'
+      })
+    },
+  },
+  metaChunk:true,
+  lang:"zh-CN",
+  head:[
+    ['link',{rel:'icon',type:'image/svg+xml',href:'/icon.svg'}]
+  ],
+  lastUpdated:true
 })
