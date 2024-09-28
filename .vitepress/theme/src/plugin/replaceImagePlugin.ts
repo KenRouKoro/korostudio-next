@@ -8,6 +8,6 @@ export default function replaceImagePlugin(md) {
     const src = token.attrs[token.attrIndex('src')][1];
     const alt = token.content;
 
-    return `<n-image style="margin: auto;width: 100%;justify-content: center;" lazy src="${src}" >${alt}</n-image>`;
+    return `<n-image class="markdown-img" style="margin: auto;width: 100%;justify-content: center;" lazy src="${src}" >${alt}</n-image>`;
   };
 }

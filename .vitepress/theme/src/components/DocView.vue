@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Content, useData } from 'vitepress'
+import { Content, useData, useRouter } from 'vitepress'
 import { NCard, NImageGroup, NAnchor, NAnchorLink, NAvatar , NTime } from 'naive-ui'
 import { onMounted, onUnmounted, ref } from 'vue'
 
@@ -7,20 +7,16 @@ import '../styles/doc.scss'
 
 // 获取页面数据和前端配置数据
 const { page, frontmatter } = useData()
-
+const router = useRouter();
 // 定义 ref 变量
 const contentComponent = ref(null)
 const h2Elements = ref([])
 const firstH1 = ref(null)
-const bgUrl = ref("url(/blhx-background_and_shouhou.jpg)")
-
-// 设置背景图片
-if (frontmatter.background) {
-  bgUrl.value = `url(${frontmatter.background})`
-}
-
+const backgroundUrl = ref(`url(${frontmatter.value.cover?frontmatter.value.cover:"/blhx-background_and_shouhou.jpg"}) center center`)
 const scrollY = ref(0)
 const toc_y = ref("400px")
+const headerBlur = ref(false)
+
 
 // 滚动事件处理函数
 const onScrollBeyondThreshold = () => {
@@ -45,6 +41,8 @@ onMounted(() => {
   firstH1.value = contentComponent.value.$el.querySelector('h1')
   firstH1.value.classList.add('doc-view-first-h1')
   window.addEventListener('scroll', handleScroll)
+  setTimeout(()=>{headerBlur.value = true;},0)
+
 })
 
 onUnmounted(() => {
@@ -52,21 +50,27 @@ onUnmounted(() => {
 })
 
 // 移除字符串前缀
-const removePrefix = (str, prefix) => {
+const removePrefix = (str:string, prefix:string) => {
   return str.startsWith(prefix) ? str.slice(prefix.length) : str
+}
+//截取路由
+function getPath(url:string) {
+  const regex = /\/([^?#]*)/;
+  const match = url.match(regex);
+  return match ? match[1] : '';
 }
 </script>
 
 <template>
-  <div class="doc-header">
+  <div :class="['doc-header',headerBlur&&'doc-header-blur']">
     <div class="doc-header-title">
       <h1 style="margin-bottom: 0; font-size: 36px">
         {{ page.title }}
       </h1>
-      <p class="doc-header-subtitle">
-        <n-avatar :size="30" src="/icon2.svg" color="rgba(0,0,0,0)">
+      <p class="doc-header-subtitle" @click="router.go('/about')">
+        <n-avatar :size="35" src="/icon2.svg" color="rgba(0,0,0,0)">
         </n-avatar>
-        &nbsp;科洛 · 发布于 <n-time :time="0" format="yyyy-MM-dd" />
+        &nbsp;<a style=" color: rgba(255, 255, 255, 0.9); ">科洛</a>&nbsp; · 发布于 &nbsp;<n-time :time="frontmatter.lastupdated?frontmatter.lastupdated.lastUpdated:0" format="yyyy-MM-dd" />
       </p>
     </div>
   </div>
@@ -97,8 +101,7 @@ $min-height: calc(100vh - 4rem - 8rem);
   left: 0;
   height: 392px;
   width: 100%;
-  background: center center;
-  background: v-bind('bgUrl');
+  background: v-bind(backgroundUrl);
   background-size: cover;
 
   .doc-header-title {
@@ -116,6 +119,7 @@ $min-height: calc(100vh - 4rem - 8rem);
       margin-top: 0;
       display: flex;
       align-items: flex-end;
+      cursor: pointer;
     }
   }
 }
@@ -132,14 +136,15 @@ html:not(.dark) {
   position: absolute;
   width: 100%;
   height: 100%;
-  backdrop-filter: blur(3px);
   transition: background-color .3s var(--n-bezier), backdrop-filter .3s var(--n-bezier);
+}
+.doc-header-blur::before{
+  backdrop-filter: blur(2px);
 }
 
 .n-toc-div {
   position: fixed;
   height: 0;
-  transition: top .3s var(--n-bezier);
   top: calc(4rem + v-bind('toc_y'));
 
   .n-toc {
@@ -158,7 +163,7 @@ html:not(.dark) {
   transition: background-color .3s var(--n-bezier), opacity .3s var(--n-bezier), border-bottom-color .3s var(--n-bezier);
 
   a {
-    color: var(--text-color-base);
+    color: var(--primary-color);
     transition: color .3s var(--n-bezier), border .3s var(--n-bezier), opacity .3s var(--n-bezier);
     position: relative;
     text-decoration: none;

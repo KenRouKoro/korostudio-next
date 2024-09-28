@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { onMounted, onUnmounted, ref } from 'vue';
-import type { CSSProperties } from 'vue';
+import { h, onMounted, onUnmounted, ref } from 'vue'
+import type { CSSProperties , Component } from 'vue';
 import { storeToRefs } from 'pinia';
 import { common_store } from '../../store/common';
 import {
@@ -13,14 +13,18 @@ import {
   BookInformation20Regular,
   BeakerEdit20Regular
 } from '@vicons/fluent';
-import { HomeOutlined } from '@vicons/antd';
+import {
+  HomeOutlined,
+  GithubFilled,
+} from '@vicons/antd';
 import {
   NFlex,
   NIcon,
   NAvatar,
   useMessage,
   NSwitch,
-  NH3
+  NH3,
+  NDropdown,
 } from 'naive-ui';
 import { useData, useRouter } from 'vitepress';
 
@@ -32,6 +36,8 @@ const message = useMessage();
 const showIndex = ref(true);
 const scrollY = ref(0);
 let inIndex = frontmatter.value.layout === 'index';
+const loadingBar = ref("0%");
+const hideLoadingBar = ref(false);
 
 // 切换主题
 const changeTheme = () => {
@@ -54,9 +60,20 @@ const railStyle = ({ focused, checked }: { focused: boolean; checked: boolean })
 
 // 处理滚动事件
 const handleScroll = () => {
+  scrollY.value = window.scrollY;
+
+  let windowHeight = document.documentElement.clientHeight || document.body.clientHeight;
+  // 页面高度
+  let documentHeight = document.documentElement.scrollHeight || document.body.scrollHeight;
+  // 滚动条位置
+  let scrollTop = document.documentElement.scrollTop || document.body.scrollTop;
+  let bar = scrollTop/(documentHeight-windowHeight) * 100;
+  loadingBar.value = `${bar}%`;
+  hideLoadingBar.value = ((windowHeight + scrollTop + 2) >= documentHeight);
   if (inIndex) {
-    scrollY.value = window.scrollY;
     showIndex.value = scrollY.value <= 1;
+  }else{
+    showIndex.value = false;
   }
 };
 
@@ -76,6 +93,29 @@ onMounted(() => {
 onUnmounted(() => {
   window.removeEventListener('scroll', handleScroll);
 });
+function renderIcon(icon: Component) {
+  return () => {
+    return h(NIcon, null, {
+      default: () => h(icon)
+    })
+  }
+}
+const labData = [
+  {
+    label:'GitHub',
+    key:'github',
+    icon:renderIcon(GithubFilled)
+  }
+];
+const handleSelect = (key: string) =>{
+  switch (key){
+    case 'github':
+      window.location.href="https://github.com/KenRouKoro";
+      break;
+    default:
+      break;
+  }
+}
 </script>
 
 <template>
@@ -96,7 +136,7 @@ onUnmounted(() => {
               <n-h3>主页</n-h3>
             </n-flex>
           </div>
-          <div class="header-menu-item">
+          <div class="header-menu-item" @click="router.go('/ports')">
             <n-flex align="center" size="small">
               <n-icon size="25">
                 <BoxEdit20Regular />
@@ -104,7 +144,7 @@ onUnmounted(() => {
               <n-h3>归档</n-h3>
             </n-flex>
           </div>
-          <div class="header-menu-item" @click="message.warning('没做，嘿嘿')">
+          <div class="header-menu-item" @click="router.go('/images')">
             <n-flex align="center" size="small">
               <n-icon size="25">
                 <Image20Regular />
@@ -112,7 +152,7 @@ onUnmounted(() => {
               <n-h3>画廊</n-h3>
             </n-flex>
           </div>
-          <div class="header-menu-item">
+          <div class="header-menu-item" @click="router.go('/friends')">
             <n-flex align="center" size="small">
               <n-icon size="25">
                 <LinkSquare20Filled />
@@ -120,7 +160,7 @@ onUnmounted(() => {
               <n-h3>朋友</n-h3>
             </n-flex>
           </div>
-          <div class="header-menu-item">
+          <div class="header-menu-item" @click="router.go('/about')">
             <n-flex align="center" size="small">
               <n-icon size="25">
                 <BookInformation20Regular />
@@ -129,12 +169,14 @@ onUnmounted(() => {
             </n-flex>
           </div>
           <div class="header-menu-item">
-            <n-flex align="center" size="small">
-              <n-icon size="25">
-                <BeakerEdit20Regular />
-              </n-icon>
-              <n-h3>实验室</n-h3>
-            </n-flex>
+            <n-dropdown :options="labData" @select="handleSelect" :show-arrow="true" placement="bottom-start" size="huge">
+              <n-flex align="center" size="small">
+                <n-icon size="25">
+                  <BeakerEdit20Regular />
+                </n-icon>
+                <n-h3>实验室</n-h3>
+              </n-flex>
+            </n-dropdown>
           </div>
         </n-flex>
       </div>
@@ -160,6 +202,7 @@ onUnmounted(() => {
         </n-flex>
       </div>
     </n-flex>
+    <div :class="['header-loading-bar',hideLoadingBar&&'header-loading-bar-hide']"> </div>
   </div>
 </template>
 
@@ -175,6 +218,16 @@ onUnmounted(() => {
   .n-switch{
     transition: opacity .3s var(--n-bezier);
   }
+  .header-loading-bar{
+    position: absolute;
+    top: 0;
+    left: 0;
+    background-color: var(--primary-color);
+    height: 4px;
+    transition: opacity .3s var(--n-bezier);
+    width: v-bind(loadingBar)
+  }
+
 }
 
 .header-view-index {
@@ -188,6 +241,12 @@ onUnmounted(() => {
   .n-switch{
     opacity: 0.5;
   }
+  .header-loading-bar{
+    opacity: 0;
+  }
+}
+.header-loading-bar-hide{
+  opacity: 0;
 }
 
 .header-logo {

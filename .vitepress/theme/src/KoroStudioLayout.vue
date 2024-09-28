@@ -1,5 +1,5 @@
 <script setup>
-import { Content, useData } from 'vitepress'
+import { Content, useData, useRouter } from 'vitepress'
 import {
   NCard,
   darkTheme,
@@ -12,9 +12,10 @@ import {
   zhCN,
   dateZhCN,
   NNotificationProvider,
-  NMessageProvider
+  NMessageProvider,
+  NSpin
 } from 'naive-ui'
-import { ref } from 'vue'
+import { onMounted, ref } from 'vue'
 import PageHeader from './components/header/PageHeader.vue'
 import PageFooter from './components/PageFooter.vue'
 import PageContent from './components/PageContent.vue'
@@ -24,9 +25,31 @@ import { storeToRefs } from 'pinia'
 
 const { page , frontmatter,isDark } = useData()
 const common = storeToRefs(common_store());
+const showLoading = ref(false)
+const showFirst = ref(false);
 
 document.documentElement.className = common.theme.value.toString();
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+const router = useRouter();
 //https://api.1314.cool/bingimg
+//路由事件
+router.onBeforeRouteChange = async (to) => {
+  if (to === router.route.path) {
+    return;
+  }
+  showLoading.value = true;
+  setTimeout(() => {
+    showLoading.value = false;
+  }, 500)
+  await sleep(400);
+}
+
+onMounted(()=>{
+  setTimeout(()=>{showFirst.value = true},20);
+})
+
 </script>
 
 <template>
@@ -35,11 +58,24 @@ document.documentElement.className = common.theme.value.toString();
     <n-el>
       <n-notification-provider>
         <n-message-provider>
+          <div :class="['first-loading',showFirst&&'first-loading-show']">
+            <div class="first-loading-content">
+
+            </div>
+          </div>
           <div class="main-page">
-            <div id="header">
+            <div :class="['page-loading-fa',showLoading&&'page-loading-show']">
+              <div id="page-loading">
+                <n-spin size="large" />
+                <p>
+                  Tips：这其实是个定长动画，因为VitePress还没更新onAfterPageLoad方法。
+                </p>
+              </div>
+            </div>
+            <div id="page-header">
               <PageHeader></PageHeader>
             </div>
-            <div id="content">
+            <div id="page-content">
               <Error v-if="page.isNotFound"></Error>
               <PageContent v-else></PageContent>
             </div>
@@ -64,16 +100,7 @@ body{
   position: absolute;
   width: 100%;
 }
-/*
-body::before {
-  content: "";
-  position: absolute; /* 一定要用绝对定位
-  width: 100%;
-  height: 100%;
-  backdrop-filter: blur(30px); /* 模糊半径
-}
-*/
-#header{
+#page-header{
   width: 100%;
   height: 4rem;
   overflow: hidden;
@@ -81,7 +108,7 @@ body::before {
   top: 0;
   z-index: 999;
 }
-#content{
+#page-content{
   width: 100%;
   min-height: calc(100vh - 4rem - 8rem);
   overflow: visible;
@@ -93,8 +120,46 @@ body::before {
 }
 .main-page{
   width: 100%;
-  z-index: 999;
+  z-index: 100;
   position: relative;
+}
+.first-loading{
+  position: sticky;
+  top: 0;
+  height: 0;
+  opacity: 1;
+  z-index: 1000;
+  transition: opacity 1s var(--n-bezier);
+  .first-loading-content{
+    background-color: var(--card-color);
+    width: 100vw;
+    height: 100vh;
+    pointer-events: none;
+  }
+}
+.first-loading-show{
+  opacity: 0;
+}
+#page-loading{
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+  background: var(--card-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+}
+.page-loading-fa{
+  position: sticky;
+  top: 0;
+  height: 0;
+  opacity: 0;
+  z-index: 900;
+  transition: opacity .5s var(--n-bezier);
+}
+.page-loading-show{
+  opacity: 1;
 }
 .content-main{
   transition: width .3s var(--n-bezier);

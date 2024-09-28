@@ -62,11 +62,11 @@ pinia.use(piniaPluginPersistedstate)
 export default {
   Layout: NaiveUIProvider,
   enhanceApp: ({ app }) => {
+    app.component('n-image', NImage);
     app.use(pinia)
     if (import.meta.env.SSR) {
       const { collect } = setup(app)
       app.provide('css-render-collect', collect)
-      app.component('n-image', NImage);
     }
   }
 }

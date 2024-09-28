@@ -13,10 +13,10 @@ import {
     <n-avatar :size="45" class="rotate" src="/icon2.svg" color="rgba(0,0,0,0)">
     </n-avatar>
     <p>
-      Powered by <a href="https://vitepress.dev">VitePress</a> | Theme By <a href="/author">Koro</a> | Crafted with by <a href="https://korostudio.cn">KoroStudio</a>
+      Powered By <a href="https://vitepress.dev">VitePress</a> | Theme By <a href="/author">Koro(科洛)</a> | Crafted  By <a href="/">KoroStudio</a>
     </p>
     <p>
-      © 2024 Koro | <a href="https://beian.miit.gov.cn/">桂ICP备20000593号-1</a> | <a href="https://www.beian.gov.cn/portal/registerSystemInfo?recordcode=45030502000306">桂公网安备45030502000306</a>
+      © 2024 <a href="/author">Koro(科洛)</a> | <a href="https://beian.miit.gov.cn/">桂ICP备20000593号-1</a> | <a href="https://www.beian.gov.cn/portal/registerSystemInfo?recordcode=45030502000306">桂公网安备45030502000306</a>
     </p>
   </div>
 </template>

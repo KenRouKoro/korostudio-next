@@ -1,7 +1,8 @@
 ---
 layout: doc
 title: 你好世界！Hello World！
-time: 00000
+lastupdated: 1726438947
+cover: /83576237_p0_master1200.jpg
 ---
 <script setup lang="ts">
   import { NButton , NImage } from 'naive-ui'
@@ -12,7 +13,6 @@ HelloWorld！
 <n-button >
   nihao 你好
 </n-button>
-
 
 ```java
 //这是测试Java代码块
@@ -26,6 +26,7 @@ public class Main{
 }
 //----------------------------------------------------------------------------------------------------------------------------------------
 ```
+---
 <a href="/">test</a>
 ```javascript
 console.log("Hello!")
